@@ -41,6 +41,7 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private ChipsInput mChipsInput;
     private List<ChipInterface> mChipList = new ArrayList<>();
     private String mHintLabel;
+    private boolean requireChipFocus = true;
 
     private ChipsInputEditText mEditText;
 
@@ -203,7 +204,10 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 mEditText.setLayoutParams(params);
 
                 // request focus
-                mEditText.requestFocus();
+                if (requireChipFocus) {
+                    mEditText.requestFocus();
+                    requireChipFocus = false;
+                }
 
                 // remove the listener:
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
@@ -300,12 +304,16 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mEditText.setHint(null);
             // reset text
             mEditText.setText(null);
+
+            requireChipFocus = mEditText.hasFocus();
+
             // refresh data
             notifyItemInserted(mChipList.size());
         }
     }
 
     public void removeChip(ChipInterface chip) {
+        requireChipFocus = true;
         int position = mChipList.indexOf(chip);
         mChipList.remove(position);
         // notify listener
@@ -318,6 +326,7 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void removeChip(int position) {
+        requireChipFocus = true;
         ChipInterface chip = mChipList.get(position);
         // remove contact
         mChipList.remove(position);
@@ -331,6 +340,7 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void removeChipById(Object id) {
+        requireChipFocus = true;
         for (Iterator<ChipInterface> iter = mChipList.listIterator(); iter.hasNext(); ) {
             ChipInterface chip = iter.next();
             if (chip.getId() != null && chip.getId().equals(id)) {
@@ -365,6 +375,7 @@ public class ChipsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void removeChipByInfo(String info) {
+        requireChipFocus = true;
         for (Iterator<ChipInterface> iter = mChipList.listIterator(); iter.hasNext(); ) {
             ChipInterface chip = iter.next();
             if (chip.getInfo() != null && chip.getInfo().equals(info)) {
